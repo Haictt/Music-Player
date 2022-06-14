@@ -7,9 +7,10 @@
 		<link rel="stylesheet" href="./assets/css/style.css" />
 		<link
 			rel="stylesheet"
-			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
-			integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+			integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
 			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
 		/>
 		<link rel="preconnect" href="https://fonts.gstatic.com" />
 		<link
@@ -65,9 +66,28 @@
 
 				<audio id="audio" src=""></audio>
 			</div>
-
-			<!-- Playlist -->
-			<div class="playlist"></div>
+			<div class="screen">
+				<!-- Playlist -->
+				<div class="playlist scr active"></div>
+				<!-- Lyrics -->
+				<div class="lyrics scr"></div>
+				<!-- Playlib -->
+				<div class="playLib scr"></div>
+				<!-- Will do this later -->
+			</div>
+			<!-- Navigation -->
+			<div class="nav-bar">
+				<div class="btn btn-home active">
+					<i class="fa-solid fa-house"></i><br />Home
+				</div>
+				<div class="btn btn-lyrics">
+					<i class="fa-solid fa-music"></i><br />Lyrics
+				</div>
+				<div class="btn btn-playLib">
+					<i class="fa-solid fa-list"></i><br />PlayList
+				</div>
+			</div>
+			<!-- Modal -->
 			<div class="modal-option">
 				<div class="credits">Show Credits</div>
 				<div class="share">Share</div>

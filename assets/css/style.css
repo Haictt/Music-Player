@@ -10,7 +10,7 @@
 }
 
 body {
-	background-color: #f5f5f5;
+	background-color: #333;
 }
 
 html {
@@ -20,6 +20,7 @@ html {
 
 .player {
 	position: relative;
+	background: #f5f5f5;
 	max-width: 480px;
 	margin: 0 auto;
 }
@@ -44,6 +45,7 @@ html {
 	width: 100%;
 	max-width: 480px;
 	border-bottom: 1px solid #ebebeb;
+	z-index: 1;
 }
 
 /* HEADER */
@@ -127,10 +129,14 @@ header h2 {
 	background-color: var(--primary-color);
 	cursor: pointer;
 }
-
+/* SCREEN SLIDER */
+.screen {
+	position: relative;
+	margin-bottom: 50px;
+	margin-top: 408px;
+}
 /* PLAYLIST */
 .playlist {
-	margin-top: 408px;
 	padding: 12px;
 }
 
@@ -142,6 +148,7 @@ header h2 {
 	padding: 8px 16px;
 	border-radius: 5px;
 	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+	cursor: pointer;
 }
 
 .song.active {
@@ -186,7 +193,46 @@ header h2 {
 	color: #999;
 	font-size: 18px;
 }
+/* LYRICS */
+.lyrics {
+	display: none;
+	text-align: center;
+	padding: 12px;
+}
+.lyrics .active {
+	color: var(--primary-color);
+}
+/* NAVIGATION BAR */
+.nav-bar {
+	position: fixed;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	bottom: 0;
+	height: 60px;
+	padding: 0 16px;
+	background-color: #fff;
+	width: 100%;
+	max-width: 480px;
+	box-shadow: 0 1px 2px rgb(0, 0, 0);
+	text-align: center;
+	z-index: 1;
+}
+.nav-bar .btn {
+	color: #666;
+	padding: 4px 18px;
+	font-size: 18px;
+	width: 100px;
+	cursor: pointer;
+}
+.nav-bar a {
+	text-decoration: none;
+}
 
+.nav-bar .btn.active {
+	color: #fff;
+	background-color: var(--primary-color);
+}
 /* MODAL OPTION */
 .modal-option {
 	position: absolute;
@@ -199,6 +245,7 @@ header h2 {
 	border-radius: 5px;
 	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
 	padding: 4px 5px;
+	cursor: pointer;
 }
 .modal-option > *:hover {
 	background: var(--primary-color);
@@ -220,6 +267,7 @@ header h2 {
 	left: 0;
 	right: 0;
 	bottom: 0;
+	z-index: 2;
 }
 .modal-container {
 	position: absolute;

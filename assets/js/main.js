@@ -1,4 +1,3 @@
-import { songs } from "./data.js";
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 /*
@@ -12,8 +11,10 @@ const $$ = document.querySelectorAll.bind(document);
  * 8. Acitive Song
  * 9. Scroll song when in to view
  * 10. Play song when click
+ * 11. Lyrics
  */
-const PlAYER_STORAGE_KEY = "HAI DAO";
+//NOTE TO DO: THAY ĐỔI THUẬT TOÁN CHUYỂN DÒNG
+const USER_ID = 1;
 
 const heading = $("header h2");
 const cdThumb = $(".cd-thumb");
@@ -26,22 +27,44 @@ const nextBtn = $(".btn-next");
 const prevBtn = $(".btn-prev");
 const randomBtn = $(".btn-random");
 const repeatBtn = $(".btn-repeat");
-const playList = $(".playlist");
 const modalOption = $(".modal-option");
 const credits = $(".credits");
 const modalCredit = $(".modal-credit");
+const screen = $(".screen");
+const playList = $(".playlist");
+const lyrics = $(".lyrics");
+const playLib = $(".playLib");
+const nav = $(".nav-bar");
+const homeBtn = $(".btn-home");
+const lyricsBtn = $(".btn-lyrics");
+const playLibBtn = $(".btn-playLib");
+const songAPI = "http://localhost:3000/songs";
+const configAPI = "http://localhost:3000/configs";
 var playedSong = [];
 
+//Get DATA
+const songData = async () => {
+	let data = await fetch(songAPI);
+	let songs = await data.json();
+	return songs;
+};
+const configData = async () => {
+	let data = await fetch(configAPI + "/" + USER_ID);
+	let text = await data.json();
+	return text;
+};
+
+// APP
 const app = {
 	currentIndex: 0,
 	isPlaying: false,
 	isRandom: false,
 	isRepeat: false,
-	config: JSON.parse(localStorage.getItem(PlAYER_STORAGE_KEY)) || {},
+	config: (await configData()).config,
+	songs: await songData(),
 
 	setConfig(key, value) {
 		this.config[key] = value;
-		localStorage.setItem(PlAYER_STORAGE_KEY, JSON.stringify(this.config));
 	},
 	loadConfig() {
 		this.isRandom = this.config["isRandom"];
@@ -50,12 +73,12 @@ const app = {
 	defineProperties() {
 		Object.defineProperty(this, "currentSong", {
 			get() {
-				return songs[this.currentIndex];
+				return this.songs[this.currentIndex];
 			},
 		});
 	},
 	render() {
-		const htmls = songs.map((song, index) => {
+		const htmls = this.songs.map((song, index) => {
 			return `
             <div class="song ${
 							index === this.currentIndex ? "active" : ""
@@ -82,6 +105,8 @@ const app = {
 	},
 	handleEvents() {
 		const _this = this;
+		const navBtn = [homeBtn, lyricsBtn, playLibBtn];
+		const screens = [playList, lyrics, playLib];
 		const cdWidth = cd.offsetWidth;
 		//Xử lí CD quay, dừng
 		const cdAnimate = cdThumb.animate(
@@ -104,6 +129,21 @@ const app = {
 			const newCdWidth = cdWidth - scrollTop;
 
 			cd.style.width = newCdWidth > 0 ? newCdWidth + "px" : 0; //Prevent cd width can't access its width properly when fast scrolling
+		});
+		// Upload config trước khi reload page
+		addEventListener("beforeunload", () => {
+			fetch(configAPI + "/" + USER_ID, {
+				method: "PATCH",
+				body: JSON.stringify({
+					config: {
+						isRandom: this.isRandom,
+						isRepeat: this.isRepeat,
+					},
+				}),
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
 		});
 		// Xử lí nút play
 		playBtn.addEventListener("click", function () {
@@ -163,12 +203,29 @@ const app = {
 			play.classList.remove("playing");
 			cdAnimate.pause();
 		});
-		// Khi tiến độ thay đổi
+		// Thuật toán tìm dòng gần nhất với thời gian hiện tại trong lyrics
+		function prevTimeStamp() {
+			const lines = lyrics.querySelectorAll("p");
+			const length = lines.length;
+			for (let i = length - 1; i >= 0; i--) {
+				if (lines[i].dataset.index <= audio.currentTime) {
+					if (!lines[i].classList.contains("active")) {
+						lyrics?.querySelector("p.active")?.classList.remove("active");
+						lines[i].classList.add("active");
+						_this.scrollToActiveLine();
+					}
+					break;
+				}
+			}
+		}
+		// Thay đổi vị trí thanh progress
 		function progressChange() {
 			if (audio.duration) {
 				progress.value = Math.floor((audio.currentTime / audio.duration) * 100);
+				prevTimeStamp();
 			}
 		}
+		// Khi tiến độ thay đổi
 		audio.addEventListener("timeupdate", progressChange);
 		// Khi tua xong
 		progress.addEventListener("change", function () {
@@ -210,6 +267,12 @@ const app = {
 				}
 			}
 		});
+		// Xử lí khi click vào 1 dòng lyrics
+		lyrics.addEventListener("click", function (e) {
+			if (_this.isPlaying) {
+				audio.currentTime = e.target.dataset.index;
+			}
+		});
 		// Xử lí khi click vào credits
 		credits.addEventListener("click", function (e) {
 			console.log(modalCredit);
@@ -228,6 +291,34 @@ const app = {
 			modalOption.removeAttribute("data-index");
 			modalCredit.style.display = "none";
 		});
+		// Xử lí khi bấm nút ở nav-bar
+		navBtn.forEach(function (btn, index) {
+			btn.addEventListener("click", function () {
+				const activeBtn = nav.querySelector(".btn.active");
+				const activeScreen = screen.querySelector(".scr.active");
+				activeBtn.classList.remove("active");
+				activeScreen.classList.remove("active");
+				activeScreen.style.display = "none";
+				this.classList.add("active");
+				screens[index].classList.add("active");
+				screens[index].style.display = "block";
+			});
+		});
+	},
+	// Xử lí bất đồng bộ (lyrics)
+	handleAsync() {
+		const loadLyrics = async () => {
+			let data = await fetch(this.songs[this.currentIndex].lyrics);
+			let text = await data.text();
+			let arrText = text.split(".");
+			let arrMap = arrText.map((line) => {
+				return `<p class="" data-index='${line.trim().split(",")[1]}'>${
+					line.trim().split(",")[0]
+				}</p>`;
+			});
+			lyrics.innerHTML = arrMap.join("");
+		};
+		loadLyrics();
 	},
 	loadCurrentSong() {
 		const activeSong = playList.querySelector(".song.active");
@@ -238,11 +329,12 @@ const app = {
 		cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
 		activeSong.classList.remove("active");
 		currentSongNode.classList.add("active");
+		this.handleAsync();
 		audio.src = this.currentSong.path;
 	},
 	nextSong() {
 		this.currentIndex++;
-		if (this.currentIndex >= songs.length) {
+		if (this.currentIndex >= this.songs.length) {
 			this.currentIndex = 0;
 		}
 		this.loadCurrentSong();
@@ -250,17 +342,17 @@ const app = {
 	prevSong() {
 		this.currentIndex--;
 		if (this.currentIndex < 0) {
-			this.currentIndex = songs.length - 1;
+			this.currentIndex = this.songs.length - 1;
 		}
 		this.loadCurrentSong();
 	},
 	randomSong() {
 		let newIndex;
-		if (playedSong.length === songs.length) {
+		if (playedSong.length === this.songs.length) {
 			playedSong = []; //prevent repeat played songs when random until all of them are played
 		}
 		do {
-			newIndex = Math.floor(Math.random() * songs.length);
+			newIndex = Math.floor(Math.random() * this.songs.length);
 		} while (this.currentIndex === newIndex || playedSong.includes(newIndex));
 		this.currentIndex = newIndex;
 		playedSong.push(this.currentIndex);
@@ -273,6 +365,14 @@ const app = {
 				block: "center",
 			});
 		}, 300);
+	},
+	scrollToActiveLine() {
+		setTimeout(() => {
+			lyrics.querySelector("p.active").scrollIntoView({
+				behavior: "smooth",
+				block: "center",
+			});
+		}, 10);
 	},
 	showOption(node) {
 		modalOption.setAttribute("data-index", `${node.dataset.index}`);
@@ -295,13 +395,14 @@ const app = {
                 <div class="modal-container">
                     <h3>CREDITS</h3>
                     <h4>Song Name</h4>
-                    <p>${songs[index].name}</p>
+                    <p>${this.songs[index].name}</p>
                     <h4>Singer</h4>
-                    <p>${songs[index].singer}</p>
+                    <p>${this.songs[index].singer}</p>
                 </div>
             `;
 	},
 	start() {
+		this.handleAsync();
 		// Gán cấu hình từ config vào App
 		this.loadConfig();
 		// Tạo thuộc tính cho App
