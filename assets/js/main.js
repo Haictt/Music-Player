@@ -13,10 +13,12 @@ const $$ = document.querySelectorAll.bind(document);
  * 10. Play song when click
  * 11. Lyrics
  */
-//NOTE TO DO: THAY ĐỔI THUẬT TOÁN CHUYỂN DÒNG
+//NOTE TO DO: Fetch dữ liệu, Làm nút option, CRUD playlist, nhạc trong playlist
 const USER_ID = 1;
 
 const heading = $("header h2");
+const nowPlayingList = $("header h4");
+const dashBoard = $(".dashboard");
 const cdThumb = $(".cd-thumb");
 const audio = $("#audio");
 const cd = $(".cd");
@@ -38,31 +40,45 @@ const nav = $(".nav-bar");
 const homeBtn = $(".btn-home");
 const lyricsBtn = $(".btn-lyrics");
 const playLibBtn = $(".btn-playLib");
+const playBtnLib = $(".btn-play-playLib");
+const playLibContainer = $(".playLib-container");
+const list = $$(".list");
 const songAPI = "http://localhost:3000/songs";
-const configAPI = "http://localhost:3000/configs";
+const userAPI = "http://localhost:3000/users";
+const playLibAPI = "http://localhost:3000/playLib";
 var playedSong = [];
 
 //Get DATA
-const songData = async () => {
-	let data = await fetch(songAPI);
-	let songs = await data.json();
-	return songs;
-};
-const configData = async () => {
-	let data = await fetch(configAPI + "/" + USER_ID);
-	let text = await data.json();
-	return text;
+const data = {
+	async songData() {
+		let data = await fetch(songAPI);
+		let songs = await data.json();
+		return songs;
+	},
+	async configData() {
+		let data = await fetch(userAPI + "/" + USER_ID);
+		let text = await data.json();
+		return text;
+	},
+	async playLibData() {
+		let data = await fetch(playLibAPI + "/" + USER_ID);
+		let playLib = await data.json();
+		return playLib;
+	},
 };
 
 // APP
 const app = {
 	currentIndex: 0,
+	playingList: 1,
+	renderingList: 1,
 	isPlaying: false,
 	isRandom: false,
 	isRepeat: false,
-	config: (await configData()).config,
-	songs: await songData(),
-
+	lyrics: {},
+	config: (await data.configData()).config,
+	songs: await data.songData(),
+	playLibs: (await data.playLibData()).list,
 	setConfig(key, value) {
 		this.config[key] = value;
 	},
@@ -76,12 +92,27 @@ const app = {
 				return this.songs[this.currentIndex];
 			},
 		});
+		Object.defineProperty(this, "renderingSongs", {
+			//https://stackoverflow.com/questions/37502163/getter-setter-maximum-call-stack-size-exceeded-error
+			get() {
+				return this._renderingSongs;
+			},
+			set(value) {
+				this._renderingSongs = value;
+			},
+		});
 	},
-	render() {
-		const htmls = this.songs.map((song, index) => {
+	render(listIndex) {
+		const list = this.playLibs.find((lib) => lib.id === listIndex);
+		this.renderingSongs = list.songs;
+		const htmls = this.renderingSongs.map((song, index) => {
+			console.log("song", index, this.currentIndex);
 			return `
             <div class="song ${
-							index === this.currentIndex ? "active" : ""
+							index == this.currentIndex &&
+							this.renderingList == this.playingList
+								? "active"
+								: ""
 						}" data-index = "${index}">
                 <div
                     class="thumb"
@@ -98,6 +129,20 @@ const app = {
             </div>
         `;
 		});
+		const utilBar = `<div class="utilBar ${
+			this.renderingList === this.playingList && this.isPlaying ? "playing" : ""
+		}" data-index='${this.renderingList}'>
+				<div class="btn btn-play util">
+					<i class="fa-solid fa-play icon-play"></i>
+					<i class="fas fa-pause icon-pause"></i>
+				</div>
+				<div class="title">${list.name}</div>
+				<div class="btn btn-more">
+					<i class="fa-solid fa-ellipsis-vertical"></i>
+				</div>
+			</div>
+		`;
+		htmls.unshift(utilBar);
 		playList.innerHTML = htmls.join("");
 		//Render config
 		randomBtn.classList.toggle("active", this.isRandom);
@@ -132,7 +177,7 @@ const app = {
 		});
 		// Upload config trước khi reload page
 		addEventListener("beforeunload", () => {
-			fetch(configAPI + "/" + USER_ID, {
+			fetch(userAPI + "/" + USER_ID, {
 				method: "PATCH",
 				body: JSON.stringify({
 					config: {
@@ -189,18 +234,32 @@ const app = {
 		// Khi song được play, pause
 		audio.addEventListener("play", function () {
 			setTimeout(() => {
-				$(".song.active").scrollIntoView({
+				$(".song.active")?.scrollIntoView({
 					behavior: "smooth",
 					block: "center",
 				});
 			}, 300);
 			_this.isPlaying = true;
 			play.classList.add("playing");
+			let playingLib = playLibContainer?.querySelector(".list.playing");
+			let utilBar = playList.querySelector(".utilBar");
+			playingLib?.classList.remove("playing");
+			let currentList = Array.from(list).find((lst) => {
+				return parseInt(lst.dataset.index) === _this.playingList;
+			});
+			if (_this.playingList === parseInt(utilBar.dataset.index)) {
+				utilBar.classList.add("playing");
+			}
+			currentList?.classList.add("playing");
 			cdAnimate.play();
 		});
 		audio.addEventListener("pause", function () {
 			_this.isPlaying = false;
 			play.classList.remove("playing");
+			let playingLib = playLibContainer?.querySelector(".list.playing");
+			let utilBar = playList?.querySelector(".utilBar.playing");
+			playingLib?.classList.remove("playing");
+			utilBar?.classList.remove("playing");
 			cdAnimate.pause();
 		});
 		// Thuật toán tìm dòng gần nhất với thời gian hiện tại trong lyrics
@@ -247,31 +306,89 @@ const app = {
 		});
 		// Xử lí khi click vào song:
 		playList.addEventListener("click", function (e) {
-			const songNode = e.target.closest(".song:not(.active)");
+			const songNode = e.target.closest(".song");
 			const optionNode = e.target.closest(".option");
+			const songNodeActive = e.target.closest(".song.active");
 			if (
 				// Chuyển đến bài đó,// closest(): Trả về phần tử phù hợp đầu tiên tìm được (.song), đi từ phần tử hiện tại cho tới các phần tử tổ tiên, dừng lại ngay khi tìm đc
 				songNode ||
 				optionNode
 			) {
-				// Xử lí khi click vào song
+				// Xử lí khi click vào song option
 				if (optionNode) {
 					e.stopPropagation();
 					_this.showOption(optionNode);
 				}
-				// Xử lí khi click vào song option
+				// Xử lí khi click vào song
 				else if (songNode) {
-					_this.currentIndex = songNode.dataset.index;
-					_this.loadCurrentSong();
+					if (songNodeActive) {
+						if (_this.isPlaying) audio.pause();
+						else audio.play();
+					} else {
+						_this.currentIndex = songNode.dataset.index;
+						if (_this.renderingList === _this.playingList) {
+							_this.loadCurrentSong();
+						} else {
+							_this.loadCurrentLib(_this.renderingList);
+						}
+
+						audio.play();
+						console.log(
+							_this.currentIndex,
+							_this.renderingList,
+							_this.playingList
+						);
+					}
+				}
+			}
+		});
+		// Xử lí khi click vào 1 List trong playLib:
+		playLib.addEventListener("click", function (e) {
+			const listNode = e.target.closest(".list");
+			const playNode = e.target.closest(".btn-play-playLib");
+			// Khi click vào nút play trong 1 list
+			if (playNode) {
+				let playingList = parseInt(playNode.closest(".list").dataset.index);
+				// TH1: Khi list nhạc này đang chạy và trùng vs list nhạc được bấm nút
+				if (_this.isPlaying && playingList === _this.playingList) {
+					audio.pause();
+				} //TH2: Khi list nhạc này đang dừng và trùng vs list nhạc được bấm nút
+				else if (!_this.isPlaying && playingList === _this.playingList) {
+					audio.play();
+				} else {
+					_this.loadCurrentLib(playingList);
+					audio.play();
+				}
+			}
+			// Khi click vào 1 list
+			else if (listNode) {
+				let index = parseInt(listNode.dataset.index);
+				_this.renderingList = index;
+				_this.render(index);
+				homeBtn.click();
+				console.log(_this.currentIndex, _this.renderingList, _this.playingList);
+			}
+		});
+		// Xử lí khi click vào nút play trong Utility Bar
+		playList.addEventListener("click", function (e) {
+			let barIndex = parseInt(e.target.closest(".utilBar")?.dataset?.index);
+			let playBtn = e.target.closest(".utilBar .btn");
+			if (playBtn) {
+				console.log(barIndex);
+				if (_this.isPlaying && barIndex === _this.playingList) {
+					audio.pause();
+				} //TH2: Khi list nhạc này đang dừng và trùng vs list nhạc được bấm nút
+				else if (!_this.isPlaying && barIndex === _this.playingList) {
+					audio.play();
+				} else {
+					_this.loadCurrentLib(_this.renderingList);
 					audio.play();
 				}
 			}
 		});
 		// Xử lí khi click vào 1 dòng lyrics
 		lyrics.addEventListener("click", function (e) {
-			if (_this.isPlaying) {
-				audio.currentTime = e.target.dataset.index;
-			}
+			audio.currentTime = e.target.dataset.index;
 		});
 		// Xử lí khi click vào credits
 		credits.addEventListener("click", function (e) {
@@ -284,7 +401,6 @@ const app = {
 					e.stopPropagation();
 				});
 		});
-
 		// Xử lí khi click ra ngoài thì loại bỏ modal option
 		document.addEventListener("click", function () {
 			modalOption.style.display = "none";
@@ -302,33 +418,58 @@ const app = {
 				this.classList.add("active");
 				screens[index].classList.add("active");
 				screens[index].style.display = "block";
+				screen.style.marginTop = this.style.getPropertyValue("--marginTop");
+				dashBoard.style.display = this.style.getPropertyValue("--dashBoard");
 			});
 		});
 	},
 	// Xử lí bất đồng bộ (lyrics)
 	handleAsync() {
-		const loadLyrics = async () => {
-			let data = await fetch(this.songs[this.currentIndex].lyrics);
-			let text = await data.text();
-			let arrText = text.split(".");
-			let arrMap = arrText.map((line) => {
-				return `<p class="" data-index='${line.trim().split(",")[1]}'>${
-					line.trim().split(",")[0]
-				}</p>`;
-			});
-			lyrics.innerHTML = arrMap.join("");
-		};
-		loadLyrics();
+		// Chỉ fetch những bài chưa có trong list
+		if (!this.lyrics.hasOwnProperty(this.songs[this.currentIndex].lyrics)) {
+			const loadLyrics = async () => {
+				let data = await fetch(this.songs[this.currentIndex].lyrics);
+				let text = await data.text();
+				let arrText = text.split(".");
+				let arrMap = arrText.map((line) => {
+					return `<p class="" data-index='${line.trim().split(",")[1]}'>${
+						line.trim().split(",")[0]
+					}</p>`;
+				});
+				let lyric = arrMap.join("");
+				lyrics.innerHTML = lyric;
+				this.lyrics[this.songs[this.currentIndex].lyrics] = lyric;
+			};
+			loadLyrics();
+		} else {
+			lyrics.innerHTML = this.lyrics[this.songs[this.currentIndex].lyrics];
+		}
+	},
+	loadCurrentLib(currentLib) {
+		this.playingList = currentLib;
+		let playingSongs = this.playLibs.find(
+			(lib) => lib.id === this.playingList
+		).songs;
+		this.songs = playingSongs;
+		if (this.playingList !== this.renderingList) {
+			const activeSong = playList.querySelector(".song.active");
+			activeSong?.classList.remove("active");
+		}
+		if (currentLib !== this.renderingList) {
+			this.currentIndex = 0;
+		}
+		this.loadCurrentSong();
 	},
 	loadCurrentSong() {
-		const activeSong = playList.querySelector(".song.active");
-		const currentSongNode =
-			playList.querySelectorAll(".song")[this.currentIndex];
-
+		if (this.renderingList === this.playingList) {
+			const activeSong = playList.querySelector(".song.active");
+			const currentSongNode =
+				playList.querySelectorAll(".song")[this.currentIndex];
+			activeSong?.classList.remove("active");
+			currentSongNode?.classList.add("active");
+		}
 		heading.textContent = this.currentSong.name;
 		cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
-		activeSong.classList.remove("active");
-		currentSongNode.classList.add("active");
 		this.handleAsync();
 		audio.src = this.currentSong.path;
 	},
@@ -360,7 +501,7 @@ const app = {
 	},
 	scrollToActiveSong() {
 		setTimeout(() => {
-			$(".song.active").scrollIntoView({
+			$(".song.active")?.scrollIntoView({
 				behavior: "smooth",
 				block: "center",
 			});
@@ -395,20 +536,21 @@ const app = {
                 <div class="modal-container">
                     <h3>CREDITS</h3>
                     <h4>Song Name</h4>
-                    <p>${this.songs[index].name}</p>
+                    <p>${this.renderingSongs[index].name}</p>
                     <h4>Singer</h4>
-                    <p>${this.songs[index].singer}</p>
+                    <p>${this.renderingSongs[index].singer}</p>
                 </div>
             `;
 	},
 	start() {
 		this.handleAsync();
+		console.log(this.playLibs, this.renderingSongs, this.renderingList);
 		// Gán cấu hình từ config vào App
 		this.loadConfig();
 		// Tạo thuộc tính cho App
 		this.defineProperties();
 		this.handleEvents();
-		this.render();
+		this.render(this.renderingList);
 		this.loadCurrentSong();
 	},
 };

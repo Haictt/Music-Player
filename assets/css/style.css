@@ -135,11 +135,57 @@ header h2 {
 	margin-bottom: 50px;
 	margin-top: 408px;
 }
+/* UTILITY BAR */
+.utilBar {
+	display: flex;
+	justify-content: space-between;
+	padding: 0 16px;
+	margin-bottom: 10px;
+}
+.utilBar .btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 16px;
+	background: var(--primary-color);
+	border-radius: 50%;
+	width: 42px;
+	height: 42px;
+	cursor: pointer;
+	box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+	transition: all 0.3s ease;
+	color: #fff;
+}
+.utilBar .btn:active {
+	opacity: 0.8;
+}
+.utilBar .title {
+	line-height: 40px;
+	border-radius: 16%/50%;
+	width: 120px;
+	height: 42px;
+	text-align: center;
+	color: #fff;
+	background: var(--primary-color);
+	box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+}
+.utilBar .icon-pause {
+	display: none !important;
+}
+.utilBar.playing .icon-pause {
+	display: block !important;
+}
+.utilBar .icon-play {
+	display: block !important;
+}
+.utilBar.playing .icon-play {
+	display: none !important;
+}
 /* PLAYLIST */
 .playlist {
 	padding: 12px;
+	min-height: calc(100vh - 403px);
 }
-
 .song {
 	display: flex;
 	align-items: center;
@@ -201,6 +247,115 @@ header h2 {
 }
 .lyrics .active {
 	color: var(--primary-color);
+}
+.lyrics p {
+	cursor: pointer;
+}
+/* PLAY LIBRARY */
+.playLib {
+	padding: 12px 0;
+	min-height: calc(100vh - 120px);
+	display: none;
+}
+.playLib .header {
+	padding: 16px 16px 14px;
+	background-color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	max-width: 480px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+	z-index: 1;
+}
+.playLib .header .btn {
+	position: absolute;
+	text-align: center;
+	right: 0px;
+	width: 64px;
+	line-height: 32px;
+	line-height: 48px;
+	font-size: 20px;
+	color: #666;
+	cursor: pointer;
+}
+.playLib-container {
+	display: flex;
+	padding: 16px 16px 14px;
+	flex-wrap: wrap;
+	justify-content: space-between;
+}
+.list {
+	display: flex;
+	flex-direction: column;
+	width: 48%;
+	margin-bottom: 12px;
+	background-color: #fff;
+	padding: 16px;
+	border-radius: 5px;
+	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+	text-align: center;
+	transition: background-color 0.2s ease;
+}
+.playLib-container .list .icon-pause {
+	display: none;
+}
+
+.playLib-container .list.playing .icon-pause {
+	display: block;
+}
+.playLib-container .list .icon-play {
+	display: block;
+}
+.playLib-container .list.playing .icon-play {
+	display: none;
+}
+
+.playLib-container .list:hover .btn {
+	transform: translateY(-8px);
+	opacity: 1;
+}
+.playLib-container .list .thumb {
+	position: relative;
+	width: 100%;
+	padding-top: 100%;
+	border-radius: 5%;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-image: url("../image/Arcueid2.jpg");
+}
+.playLib-container .list:hover {
+	background-color: rgb(255, 238, 238);
+}
+.playLib-container .thumb .btn {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	bottom: 4px;
+	right: 12px;
+	background: var(--primary-color);
+	border-radius: 50%;
+	width: 42px;
+	height: 42px;
+	opacity: 0;
+	cursor: auto;
+	z-index: 1;
+	box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+	transition: all 0.3s ease;
+	color: #fff;
+}
+.playLib-container .thumb .btn:hover {
+	transform: scale(1.1) translateY(-8px);
+}
+.playLib-container .thumb .btn:active {
+	opacity: 0.8;
+}
+.playLib-container .list .body {
+	margin-top: 10px;
 }
 /* NAVIGATION BAR */
 .nav-bar {

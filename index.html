@@ -72,18 +72,69 @@
 				<!-- Lyrics -->
 				<div class="lyrics scr"></div>
 				<!-- Playlib -->
-				<div class="playLib scr"></div>
+				<div class="playLib scr">
+					<div class="header">
+						<h1>PLAY LIST</h1>
+						<div class="btn btn-add">
+							<i class="fa-solid fa-plus"></i>
+						</div>
+					</div>
+					<div class="playLib-container">
+						<div class="list" data-index="1">
+							<div class="thumb">
+								<div class="btn btn-play-playLib">
+									<i class="fas fa-play icon-play"></i>
+									<i class="fas fa-pause icon-pause"></i>
+								</div>
+							</div>
+							<div class="body">
+								<h3 class="title">All Song</h3>
+							</div>
+						</div>
+						<div class="list" data-index="2">
+							<div class="thumb">
+								<div class="btn btn-play-playLib">
+									<i class="fas fa-play icon-play"></i>
+									<i class="fas fa-pause icon-pause"></i>
+								</div>
+							</div>
+							<div class="body">
+								<h3 class="title">Fate</h3>
+							</div>
+						</div>
+						<div class="list" data-index="3">
+							<div class="thumb">
+								<div class="btn btn-play-playLib">
+									<i class="fas fa-play icon-play"></i>
+									<i class="fas fa-pause icon-pause"></i>
+								</div>
+							</div>
+							<div class="body">
+								<h3 class="title">YOASOBI</h3>
+							</div>
+						</div>
+					</div>
+				</div>
 				<!-- Will do this later -->
 			</div>
 			<!-- Navigation -->
 			<div class="nav-bar">
-				<div class="btn btn-home active">
+				<div
+					class="btn btn-home active"
+					style="--marginTop: 408px; --dashBoard: block"
+				>
 					<i class="fa-solid fa-house"></i><br />Home
 				</div>
-				<div class="btn btn-lyrics">
+				<div
+					class="btn btn-lyrics"
+					style="--marginTop: 408px; --dashBoard: block"
+				>
 					<i class="fa-solid fa-music"></i><br />Lyrics
 				</div>
-				<div class="btn btn-playLib">
+				<div
+					class="btn btn-playLib"
+					style="--marginTop: 68px; --dashBoard: none"
+				>
 					<i class="fa-solid fa-list"></i><br />PlayList
 				</div>
 			</div>
@@ -95,6 +146,7 @@
 			</div>
 			<div class="modal-credit"></div>
 		</div>
+		<!-- Play Library -->
 		<script type="module" src="./assets/js/main.js"></script>
 	</body>
 </html>
