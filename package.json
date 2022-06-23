@@ -1,23 +1,25 @@
 {
-  "name": "music-player",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "json-server --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Haictt/Music-Player.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Haictt/Music-Player/issues"
-  },
-  "homepage": "https://github.com/Haictt/Music-Player#readme",
-  "dependencies": {
-    "json-server": "^0.17.0"
-  }
+	"name": "music-player",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "json-server --watch",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Haictt/Music-Player.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Haictt/Music-Player/issues"
+	},
+	"homepage": "https://github.com/Haictt/Music-Player#readme",
+	"dependencies": {
+		"formidable": "^2.0.1",
+		"fs": "^0.0.1-security",
+		"json-server": "^0.17.0"
+	}
 }

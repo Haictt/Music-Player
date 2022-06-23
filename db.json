@@ -43,7 +43,7 @@
       "lyrics": "./assets/lyrics/Brave Shine.txt"
     },
     {
-      "id": 5,
+      "id": 4,
       "name": "No Title",
       "singer": "Roel",
       "path": "./assets/music/No Title.mp3",
@@ -51,7 +51,7 @@
       "lyrics": "./assets/lyrics/Brave Shine.txt"
     },
     {
-      "id": 6,
+      "id": 5,
       "name": "Red Swan",
       "singer": "HYDE",
       "path": "./assets/music/Red Swan.mp3",
@@ -59,7 +59,7 @@
       "lyrics": "./assets/lyrics/Red Swan.txt"
     },
     {
-      "id": 7,
+      "id": 6,
       "name": "Yoru Ni Kakeru",
       "singer": "Yoasobi",
       "path": "./assets/music/Yoasobi1.mp3",
@@ -67,161 +67,220 @@
       "lyrics": "./assets/lyrics/Brave Shine.txt"
     },
     {
-      "id": 8,
+      "id": 7,
       "name": "Monster",
       "singer": "Yoasobi",
       "path": "./assets/music/Yoasobi2.mp3",
       "image": "./assets/image/Yoasobi.jpg",
+      "lyrics": "./assets/lyrics/Brave Shine.txt"
+    },
+    {
+      "id": 8,
+      "name": "Seimeisen",
+      "singer": "Reona",
+      "path": "./assets/music/Seimeisen.mp3",
+      "image": "./assets/image/Tsukihime1.jpg",
       "lyrics": "./assets/lyrics/Brave Shine.txt"
     }
   ],
   "playLib": [
     {
       "id": 1,
-      "userID": 1,
-      "list": [
+      "userId": 1,
+      "name": "All Song",
+      "image": "./assets/image/Arcueid2.jpg",
+      "removeAble": false,
+      "songs": [
         {
-          "id": 1,
-          "name": "All Song",
-          "removeAble": false,
-          "songs": [
-            {
-              "id": 1,
-              "name": "Brave Shine",
-              "singer": "Aimer",
-              "path": "./assets/music/Brave Shine.mp3",
-              "image": "./assets/image/Aimer.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            },
-            {
-              "id": 2,
-              "name": "Presage Flower",
-              "singer": "Aimer",
-              "path": "./assets/music/HF1.mp3",
-              "image": "./assets/image/Aimer.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            },
-            {
-              "id": 3,
-              "name": "I Beg You",
-              "singer": "Aimer",
-              "path": "./assets/music/I Beg You.mp3",
-              "image": "./assets/image/Aimer.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            },
-            {
-              "id": 4,
-              "name": "Haru Wa Yuku",
-              "singer": "Aimer",
-              "path": "./assets/music/HF3.mp3",
-              "image": "./assets/image/Aimer.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            },
-            {
-              "id": 5,
-              "name": "No Title",
-              "singer": "Roel",
-              "path": "./assets/music/No Title.mp3",
-              "image": "./assets/image/Notitle.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            },
-            {
-              "id": 6,
-              "name": "Red Swan",
-              "singer": "HYDE",
-              "path": "./assets/music/Red Swan.mp3",
-              "image": "./assets/image/Aot.jpg",
-              "lyrics": "./assets/lyrics/Red Swan.txt"
-            },
-            {
-              "id": 7,
-              "name": "Yoru Ni Kakeru",
-              "singer": "Yoasobi",
-              "path": "./assets/music/Yoasobi1.mp3",
-              "image": "./assets/image/Yoasobi.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            },
-            {
-              "id": 8,
-              "name": "Monster",
-              "singer": "Yoasobi",
-              "path": "./assets/music/Yoasobi2.mp3",
-              "image": "./assets/image/Yoasobi.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            }
-          ]
+          "name": "Brave Shine",
+          "singer": "Aimer",
+          "path": "./assets/music/Brave Shine.mp3",
+          "image": "./assets/image/Aimer.jpg",
+          "lyrics": "./assets/lyrics/Brave Shine.txt"
         },
         {
-          "id": 2,
-          "name": "Fate",
-          "removeAble": true,
-          "songs": [
-            {
-              "id": 1,
-              "name": "Brave Shine",
-              "singer": "Aimer",
-              "path": "./assets/music/Brave Shine.mp3",
-              "image": "./assets/image/Aimer.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            },
-            {
-              "id": 2,
-              "name": "Presage Flower",
-              "singer": "Aimer",
-              "path": "./assets/music/HF1.mp3",
-              "image": "./assets/image/Aimer.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            },
-            {
-              "id": 3,
-              "name": "I Beg You",
-              "singer": "Aimer",
-              "path": "./assets/music/I Beg You.mp3",
-              "image": "./assets/image/Aimer.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            },
-            {
-              "id": 4,
-              "name": "Haru Wa Yuku",
-              "singer": "Aimer",
-              "path": "./assets/music/HF3.mp3",
-              "image": "./assets/image/Aimer.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            }
-          ]
+          "name": "Presage Flower",
+          "singer": "Aimer",
+          "path": "./assets/music/HF1.mp3",
+          "image": "./assets/image/Aimer.jpg",
+          "lyrics": "./assets/lyrics/Brave Shine.txt"
         },
         {
-          "id": 3,
-          "name": "YOASOBI",
-          "removeAble": true,
-          "songs": [
-            {
-              "id": 1,
-              "name": "Red Swan",
-              "singer": "HYDE",
-              "path": "./assets/music/Red Swan.mp3",
-              "image": "./assets/image/Aot.jpg",
-              "lyrics": "./assets/lyrics/Red Swan.txt"
-            },
-            {
-              "id": 2,
-              "name": "Yoru Ni Kakeru",
-              "singer": "Yoasobi",
-              "path": "./assets/music/Yoasobi1.mp3",
-              "image": "./assets/image/Yoasobi.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            },
-            {
-              "id": 3,
-              "name": "Monster",
-              "singer": "Yoasobi",
-              "path": "./assets/music/Yoasobi2.mp3",
-              "image": "./assets/image/Yoasobi.jpg",
-              "lyrics": "./assets/lyrics/Brave Shine.txt"
-            }
-          ]
+          "name": "I Beg You",
+          "singer": "Aimer",
+          "path": "./assets/music/I Beg You.mp3",
+          "image": "./assets/image/Aimer.jpg",
+          "lyrics": "./assets/lyrics/Brave Shine.txt"
+        },
+        {
+          "name": "Haru Wa Yuku",
+          "singer": "Aimer",
+          "path": "./assets/music/HF3.mp3",
+          "image": "./assets/image/Aimer.jpg",
+          "lyrics": "./assets/lyrics/Brave Shine.txt"
+        },
+        {
+          "name": "No Title",
+          "singer": "Roel",
+          "path": "./assets/music/No Title.mp3",
+          "image": "./assets/image/Notitle.jpg",
+          "lyrics": "./assets/lyrics/Brave Shine.txt"
+        },
+        {
+          "name": "Red Swan",
+          "singer": "HYDE",
+          "path": "./assets/music/Red Swan.mp3",
+          "image": "./assets/image/Aot.jpg",
+          "lyrics": "./assets/lyrics/Red Swan.txt"
+        },
+        {
+          "name": "Yoru Ni Kakeru",
+          "singer": "Yoasobi",
+          "path": "./assets/music/Yoasobi1.mp3",
+          "image": "./assets/image/Yoasobi.jpg",
+          "lyrics": "./assets/lyrics/Brave Shine.txt"
+        },
+        {
+          "name": "Monster",
+          "singer": "Yoasobi",
+          "path": "./assets/music/Yoasobi2.mp3",
+          "image": "./assets/image/Yoasobi.jpg",
+          "lyrics": "./assets/lyrics/Brave Shine.txt"
+        },
+        {
+          "name": "Seimeisen",
+          "singer": "Reona",
+          "path": "./assets/music/Seimeisen.mp3",
+          "image": "./assets/image/Tsukihime1.jpg",
+          "lyrics": "./assets/lyrics/Brave Shine.txt"
         }
       ]
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "name": "Fate",
+      "image": "./assets/image/Arcueid2.jpg",
+      "removeAble": true,
+      "songs": []
+    },
+    {
+      "id": 3,
+      "userId": 1,
+      "name": "YOASOBI",
+      "image": "./assets/image/Yoasobi.jpg",
+      "removeAble": true,
+      "songs": [
+        {
+          "name": "Red Swan",
+          "singer": "HYDE",
+          "path": "./assets/music/Red Swan.mp3",
+          "image": "./assets/image/Aot.jpg",
+          "lyrics": "./assets/lyrics/Red Swan.txt"
+        },
+        {
+          "name": "Monster",
+          "singer": "Yoasobi",
+          "path": "./assets/music/Yoasobi2.mp3",
+          "image": "./assets/image/Yoasobi.jpg",
+          "lyrics": "./assets/lyrics/Brave Shine.txt"
+        },
+        {
+          "name": "Yoru Ni Kakeru",
+          "singer": "Yoasobi",
+          "path": "./assets/music/Yoasobi1.mp3",
+          "image": "./assets/image/Yoasobi.jpg",
+          "lyrics": "./assets/lyrics/Brave Shine.txt"
+        }
+      ]
+    },
+    {
+      "userId": 1,
+      "name": "hai dao",
+      "image": "./assets/image/244678245_2773283679636945_4830478656954616754_n.jpg",
+      "removeAble": true,
+      "songs": [
+        {
+          "name": "Seimeisen",
+          "singer": "Reona",
+          "path": "./assets/music/Seimeisen.mp3",
+          "image": "./assets/image/Tsukihime1.jpg",
+          "lyrics": "./assets/lyrics/Brave Shine.txt"
+        }
+      ],
+      "id": 6
+    },
+    {
+      "userId": 1,
+      "name": "Tsukihime",
+      "image": "./assets/image/E96OEU7XoAQ7i62.jpg",
+      "removeAble": true,
+      "songs": [],
+      "id": 7
+    },
+    {
+      "userId": 1,
+      "name": "bla bla",
+      "image": "./assets/image/sakuramatou.jpg",
+      "removeAble": true,
+      "songs": [
+        {
+          "name": "I Beg You",
+          "singer": "Aimer",
+          "path": "./assets/music/I Beg You.mp3",
+          "image": "./assets/image/Aimer.jpg",
+          "lyrics": "./assets/lyrics/Brave Shine.txt"
+        }
+      ],
+      "id": 8
+    },
+    {
+      "userId": 1,
+      "name": "rita",
+      "image": "./assets/image/76611488_p0_master1200.jpg",
+      "removeAble": true,
+      "songs": [],
+      "id": 9
+    },
+    {
+      "userId": 1,
+      "name": "still Đào Phúc Hải",
+      "image": "./assets/image/85bcb3cecf5a0f04564b2.jpg",
+      "removeAble": true,
+      "songs": [],
+      "id": 10
+    },
+    {
+      "userId": 1,
+      "name": "Keq",
+      "image": "./assets/image/85446834_p0.jpg",
+      "removeAble": true,
+      "songs": [],
+      "id": 11
+    },
+    {
+      "userId": 1,
+      "name": "Keq2",
+      "image": "./assets/image/85446834_p0_master1200.jpg",
+      "removeAble": true,
+      "songs": [],
+      "id": 12
+    },
+    {
+      "userId": 1,
+      "name": "rezzzz",
+      "image": "./assets/image/reze.jpg",
+      "removeAble": true,
+      "songs": [],
+      "id": 13
+    },
+    {
+      "userId": 1,
+      "name": "yor",
+      "image": "./assets/image/FQ7heqSaIAAyNzU.jpg",
+      "removeAble": true,
+      "songs": [],
+      "id": 14
     }
   ]
 }

@@ -79,41 +79,8 @@
 							<i class="fa-solid fa-plus"></i>
 						</div>
 					</div>
-					<div class="playLib-container">
-						<div class="list" data-index="1">
-							<div class="thumb">
-								<div class="btn btn-play-playLib">
-									<i class="fas fa-play icon-play"></i>
-									<i class="fas fa-pause icon-pause"></i>
-								</div>
-							</div>
-							<div class="body">
-								<h3 class="title">All Song</h3>
-							</div>
-						</div>
-						<div class="list" data-index="2">
-							<div class="thumb">
-								<div class="btn btn-play-playLib">
-									<i class="fas fa-play icon-play"></i>
-									<i class="fas fa-pause icon-pause"></i>
-								</div>
-							</div>
-							<div class="body">
-								<h3 class="title">Fate</h3>
-							</div>
-						</div>
-						<div class="list" data-index="3">
-							<div class="thumb">
-								<div class="btn btn-play-playLib">
-									<i class="fas fa-play icon-play"></i>
-									<i class="fas fa-pause icon-pause"></i>
-								</div>
-							</div>
-							<div class="body">
-								<h3 class="title">YOASOBI</h3>
-							</div>
-						</div>
-					</div>
+					<div class="playLib-container"></div>
+					<div class="modal-playLib"></div>
 				</div>
 				<!-- Will do this later -->
 			</div>
@@ -141,12 +108,16 @@
 			<!-- Modal -->
 			<div class="modal-option">
 				<div class="credits">Show Credits</div>
-				<div class="share">Share</div>
-				<div class="add">Add To Playlist</div>
+				<div class="share">Music Link</div>
+				<div class="remove">Remove From PlayList</div>
+				<div class="add">
+					Add To Playlist
+					<div class="all-playLib"></div>
+				</div>
 			</div>
 			<div class="modal-credit"></div>
 		</div>
-		<!-- Play Library -->
 		<script type="module" src="./assets/js/main.js"></script>
+		<!-- <script src="./assets/js/validForm.js"></script> -->
 	</body>
 </html>

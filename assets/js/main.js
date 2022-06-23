@@ -13,7 +13,7 @@ const $$ = document.querySelectorAll.bind(document);
  * 10. Play song when click
  * 11. Lyrics
  */
-//NOTE TO DO: Fetch dữ liệu, Làm nút option, CRUD playlist, nhạc trong playlist
+//NOTE TO DO: first:Làm nút option, delete playlist, edit playlist, upload music
 const USER_ID = 1;
 
 const heading = $("header h2");
@@ -42,12 +42,14 @@ const lyricsBtn = $(".btn-lyrics");
 const playLibBtn = $(".btn-playLib");
 const playBtnLib = $(".btn-play-playLib");
 const playLibContainer = $(".playLib-container");
-const list = $$(".list");
+const allPlayLibTab = $(".all-playLib");
+const removeBtn = $(".remove");
+const addPlayLibBtn = $(".playLib .header .btn-add");
+const modalPlayLib = $(".modal-playLib");
 const songAPI = "http://localhost:3000/songs";
 const userAPI = "http://localhost:3000/users";
 const playLibAPI = "http://localhost:3000/playLib";
 var playedSong = [];
-
 //Get DATA
 const data = {
 	async songData() {
@@ -61,12 +63,68 @@ const data = {
 		return text;
 	},
 	async playLibData() {
-		let data = await fetch(playLibAPI + "/" + USER_ID);
+		let data = await fetch(playLibAPI + "?userId=" + USER_ID);
 		let playLib = await data.json();
 		return playLib;
 	},
 };
-
+// CRUD
+const CRUD = {
+	modifySong(playlist) {
+		playlist.forEach((list) => {
+			fetch(playLibAPI + "/" + list.id, {
+				method: "PATCH",
+				body: JSON.stringify({
+					songs: list.songs,
+				}),
+				headers: {
+					"Content-Type": "application/json",
+				},
+				keepalive: true,
+			}).catch((Error) => {
+				console.log(Error);
+			});
+		});
+	},
+	modifyConfig(isRandom, isRepeat) {
+		fetch(userAPI + "/" + USER_ID, {
+			method: "PATCH",
+			body: JSON.stringify({
+				config: {
+					isRandom: isRandom,
+					isRepeat: isRepeat,
+				},
+			}),
+			headers: {
+				"Content-Type": "application/json",
+			},
+			keepalive: true,
+		});
+	},
+	uploadFile() {
+		let formData = new FormData();
+		formData.append("fileupload", fileupload.files[0]);
+		fetch("http://localhost:8080/upload", {
+			mode: "no-cors",
+			method: "POST",
+			body: formData,
+			keepalive: true,
+		});
+		console.log(fileupload.files[0]);
+	},
+	addPlayList(data) {
+		fetch(playLibAPI, {
+			method: "POST",
+			body: JSON.stringify(data),
+			headers: {
+				"Content-Type": "application/json",
+			},
+			keepalive: true,
+		}).catch((err) => {
+			console.log(err);
+		});
+	},
+};
 // APP
 const app = {
 	currentIndex: 0,
@@ -75,10 +133,11 @@ const app = {
 	isPlaying: false,
 	isRandom: false,
 	isRepeat: false,
+	isSongModify: false,
 	lyrics: {},
 	config: (await data.configData()).config,
 	songs: await data.songData(),
-	playLibs: (await data.playLibData()).list,
+	playLibs: await data.playLibData(),
 	setConfig(key, value) {
 		this.config[key] = value;
 	},
@@ -102,8 +161,46 @@ const app = {
 			},
 		});
 	},
+	renderList() {
+		const htmls = this.playLibs.map((list, index) => {
+			return `
+			<div class="list" data-index="${list.id}">
+							<div class="music-beat" style="display:${
+								list.id == this.playingList ? "block" : ""
+							}">
+								<ul>
+									<li></li>
+									<li></li>
+									<li></li>
+									<li></li>
+								</ul>
+							</div>
+							<div class="thumb" style="background-image: url(${list.image});">
+								<div class="btn btn-play-playLib">
+									<i class="fas fa-play icon-play"></i>
+									<i class="fas fa-pause icon-pause"></i>
+								</div>
+							</div>
+							<div class="body">
+								<h3 class="title">${list.name}</h3>
+							</div>
+						</div>
+			`;
+		});
+		const list = this.playLibs.map((list) => {
+			if (list.id != 1)
+				return `
+					<div class="lib" data-index="${list.id}">${list.name}</div>
+				`;
+		});
+		allPlayLibTab.innerHTML = list.join("");
+		playLibContainer.innerHTML = htmls.join("");
+	},
 	render(listIndex) {
 		const list = this.playLibs.find((lib) => lib.id === listIndex);
+		const playingListNow = this.playLibs.find(
+			(lib) => lib.id === this.playingList
+		);
 		this.renderingSongs = list.songs;
 		const htmls = this.renderingSongs.map((song, index) => {
 			console.log("song", index, this.currentIndex);
@@ -142,6 +239,7 @@ const app = {
 				</div>
 			</div>
 		`;
+		nowPlayingList.innerText = playingListNow.name;
 		htmls.unshift(utilBar);
 		playList.innerHTML = htmls.join("");
 		//Render config
@@ -153,6 +251,8 @@ const app = {
 		const navBtn = [homeBtn, lyricsBtn, playLibBtn];
 		const screens = [playList, lyrics, playLib];
 		const cdWidth = cd.offsetWidth;
+		const list = $$(".list");
+
 		//Xử lí CD quay, dừng
 		const cdAnimate = cdThumb.animate(
 			[
@@ -175,20 +275,13 @@ const app = {
 
 			cd.style.width = newCdWidth > 0 ? newCdWidth + "px" : 0; //Prevent cd width can't access its width properly when fast scrolling
 		});
-		// Upload config trước khi reload page
+		// Upload trước khi reload page
 		addEventListener("beforeunload", () => {
-			fetch(userAPI + "/" + USER_ID, {
-				method: "PATCH",
-				body: JSON.stringify({
-					config: {
-						isRandom: this.isRandom,
-						isRepeat: this.isRepeat,
-					},
-				}),
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
+			CRUD.modifyConfig(_this.isRandom, _this.isRepeat);
+			if (_this.isSongModify) {
+				CRUD.modifySong(_this.playLibs);
+				_this.isSongModify = false;
+			}
 		});
 		// Xử lí nút play
 		playBtn.addEventListener("click", function () {
@@ -244,6 +337,7 @@ const app = {
 			let playingLib = playLibContainer?.querySelector(".list.playing");
 			let utilBar = playList.querySelector(".utilBar");
 			playingLib?.classList.remove("playing");
+			console.log(list);
 			let currentList = Array.from(list).find((lst) => {
 				return parseInt(lst.dataset.index) === _this.playingList;
 			});
@@ -252,6 +346,7 @@ const app = {
 			}
 			currentList?.classList.add("playing");
 			cdAnimate.play();
+			console.log(_this.currentIndex);
 		});
 		audio.addEventListener("pause", function () {
 			_this.isPlaying = false;
@@ -325,13 +420,13 @@ const app = {
 						if (_this.isPlaying) audio.pause();
 						else audio.play();
 					} else {
-						_this.currentIndex = songNode.dataset.index;
+						_this.currentIndex = parseInt(songNode.dataset.index);
+						console.log(_this.currentIndex);
 						if (_this.renderingList === _this.playingList) {
 							_this.loadCurrentSong();
 						} else {
-							_this.loadCurrentLib(_this.renderingList);
+							_this.loadCurrentLib(_this.renderingList, _this.currentIndex);
 						}
-
 						audio.play();
 						console.log(
 							_this.currentIndex,
@@ -356,8 +451,7 @@ const app = {
 				else if (!_this.isPlaying && playingList === _this.playingList) {
 					audio.play();
 				} else {
-					_this.loadCurrentLib(playingList);
-					audio.play();
+					_this.loadCurrentLib(playingList, 0);
 				}
 			}
 			// Khi click vào 1 list
@@ -372,7 +466,7 @@ const app = {
 		// Xử lí khi click vào nút play trong Utility Bar
 		playList.addEventListener("click", function (e) {
 			let barIndex = parseInt(e.target.closest(".utilBar")?.dataset?.index);
-			let playBtn = e.target.closest(".utilBar .btn");
+			let playBtn = e.target.closest(".utilBar .btn-play");
 			if (playBtn) {
 				console.log(barIndex);
 				if (_this.isPlaying && barIndex === _this.playingList) {
@@ -381,8 +475,15 @@ const app = {
 				else if (!_this.isPlaying && barIndex === _this.playingList) {
 					audio.play();
 				} else {
-					_this.loadCurrentLib(_this.renderingList);
-					audio.play();
+					_this.loadCurrentLib(_this.renderingList, 0);
+
+					console.log(
+						_this.currentIndex,
+						_this.renderingList,
+						_this.playingList,
+						_this.renderingSongs,
+						_this.songs
+					);
 				}
 			}
 		});
@@ -406,6 +507,7 @@ const app = {
 			modalOption.style.display = "none";
 			modalOption.removeAttribute("data-index");
 			modalCredit.style.display = "none";
+			modalPlayLib.style.display = "none";
 		});
 		// Xử lí khi bấm nút ở nav-bar
 		navBtn.forEach(function (btn, index) {
@@ -420,6 +522,57 @@ const app = {
 				screens[index].style.display = "block";
 				screen.style.marginTop = this.style.getPropertyValue("--marginTop");
 				dashBoard.style.display = this.style.getPropertyValue("--dashBoard");
+			});
+		});
+		// Xử lí khi thêm 1 song vào playlist được liệt kê trong allPlayLibTab
+		allPlayLibTab.addEventListener("click", function (e) {
+			let playLib = e.target.closest(".lib");
+			let songIndex = e.target.closest(".modal-option").dataset.index;
+			console.log(_this.renderingSongs[songIndex]);
+			_this.addSongtoPlayList(
+				_this.renderingSongs[songIndex],
+				playLib.dataset.index
+			);
+			console.log(..._this.playLibs);
+		});
+		// Xử lí khi remove 1 song khỏi playlist
+		removeBtn.addEventListener("click", function (e) {
+			let songIndex = e.target.closest(".modal-option").dataset.index;
+			_this.removeSongfromPlayList(songIndex, _this.renderingList);
+		});
+		// Xử lí khi bấm nút add Playlist
+		addPlayLibBtn.addEventListener("click", function (e) {
+			e.stopPropagation();
+			_this.showAddModal();
+			modalPlayLib
+				.querySelector(".modal-container")
+				.addEventListener("click", function (e) {
+					e.stopPropagation();
+				});
+			let text = modalPlayLib.querySelector('input[type="text"]');
+			let file = modalPlayLib.querySelector('input[type="file"]');
+			let form = modalPlayLib.querySelector("form");
+			text.addEventListener("change", function () {
+				_this.InvalidMsg(this);
+			});
+			text.addEventListener("invalid", function () {
+				_this.InvalidMsg(this);
+			});
+			// Xử lí validation form
+			form.addEventListener("submit", (e) => {
+				if (form.reportValidity()) {
+					form.button.disabled = true;
+					CRUD.uploadFile();
+					let data = {
+						userId: USER_ID,
+						name: text.value,
+						image: "./assets/image/" + file.files[0].name,
+						removeAble: true,
+						songs: [],
+					};
+					CRUD.addPlayList(data);
+					return true;
+				} else return false;
 			});
 		});
 	},
@@ -445,20 +598,33 @@ const app = {
 			lyrics.innerHTML = this.lyrics[this.songs[this.currentIndex].lyrics];
 		}
 	},
-	loadCurrentLib(currentLib) {
-		this.playingList = currentLib;
-		let playingSongs = this.playLibs.find(
-			(lib) => lib.id === this.playingList
-		).songs;
-		this.songs = playingSongs;
-		if (this.playingList !== this.renderingList) {
-			const activeSong = playList.querySelector(".song.active");
-			activeSong?.classList.remove("active");
+	loadCurrentLib(currentLib, currentIndex) {
+		let songs = this.playLibs.find((lib) => lib.id == currentLib).songs;
+		if (songs.length) {
+			this.currentIndex = currentIndex;
+			this.playingList = currentLib;
+			let playingSongs = this.playLibs.find(
+				(lib) => lib.id == this.playingList
+			);
+			this.songs = playingSongs.songs;
+			if (this.playingList != this.renderingList) {
+				const activeSong = playList.querySelector(".song.active");
+				activeSong?.classList.remove("active");
+			}
+			let playingListNode = $$(".list");
+			playingListNode.forEach((list) => {
+				if (list.dataset.index == this.playingList)
+					list.querySelector(".music-beat").style.display = "block";
+				else {
+					list.querySelector(".music-beat").style.display = "none";
+				}
+			});
+			nowPlayingList.innerText = playingSongs.name;
+			this.loadCurrentSong();
+			audio.play();
+		} else {
+			console.log("No songs");
 		}
-		if (currentLib !== this.renderingList) {
-			this.currentIndex = 0;
-		}
-		this.loadCurrentSong();
 	},
 	loadCurrentSong() {
 		if (this.renderingList === this.playingList) {
@@ -468,10 +634,14 @@ const app = {
 			activeSong?.classList.remove("active");
 			currentSongNode?.classList.add("active");
 		}
-		heading.textContent = this.currentSong.name;
-		cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
-		this.handleAsync();
-		audio.src = this.currentSong.path;
+		if (!this.songs.length) {
+			console.log("empty");
+		} else {
+			heading.textContent = this.currentSong.name;
+			cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
+			this.handleAsync();
+			audio.src = this.currentSong.path;
+		}
 	},
 	nextSong() {
 		this.currentIndex++;
@@ -518,11 +688,11 @@ const app = {
 	showOption(node) {
 		modalOption.setAttribute("data-index", `${node.dataset.index}`);
 		modalOption.style.display = "block";
-		if (window.innerHeight / 2 > node.offsetTop) {
+		let nodePositionTop = Math.floor(node.getBoundingClientRect().top);
+		if (window.innerHeight / 2 + 22 > nodePositionTop) {
 			modalOption.style.left = node.offsetLeft + 10 + "px";
-			modalOption.style.top =
-				node.offsetTop + modalOption.offsetHeight / 2 - 16 + "px";
-		} else if (window.innerHeight / 2 <= node.offsetTop) {
+			modalOption.style.top = node.offsetTop + 40 + "px";
+		} else if (window.innerHeight / 2 + 22 <= nodePositionTop) {
 			modalOption.style.left = node.offsetLeft + 10 + "px";
 			modalOption.style.top =
 				node.offsetTop - modalOption.offsetHeight + 16 + "px";
@@ -542,6 +712,64 @@ const app = {
                 </div>
             `;
 	},
+	showAddModal() {
+		modalPlayLib.style.display = "flex";
+		modalPlayLib.innerHTML = `
+				<div class="modal-container">
+				<form >
+					<h3> ADD PLAYLIST </h3>
+					<div style="display:flex; flex-wrap:wrap">
+						<label for="" style="min-width:90px">Name</label>
+						<input type="text" name="Name1" required="required">
+					</div>
+					<div style="display:flex; flex-wrap:wrap">
+						<label for="file">Image</label>
+						<input id="fileupload" name="fileupload" type="file" accept="image/*" required="required">
+						
+					</div>
+					<input class='fix submit' name="button" type="submit" >
+				</form>		
+				</div>
+			`;
+	},
+
+	addSongtoPlayList(addedSong, libId) {
+		let currentList = this.playLibs.find((list) => list.id == libId).songs;
+		let dublicate = currentList.find((song) => song.name == addedSong.name);
+		if (!dublicate) {
+			let { name, singer, path, image, lyrics } = addedSong;
+			currentList.push({
+				name: name,
+				singer: singer,
+				path: path,
+				image: image,
+				lyrics: lyrics,
+			});
+			this.isSongModify = true;
+		}
+	},
+	removeSongfromPlayList(deletedSong, libId) {
+		if (libId != 1) {
+			let { name, singer, path, image, lyrics } = deletedSong;
+			this.renderingSongs.splice(deletedSong, 1);
+			$(`.song[data-index="${deletedSong}"]`).remove();
+			console.log(this.playLibs, this.songs);
+			this.isSongModify = true;
+		}
+	},
+	InvalidMsg(textbox) {
+		console.log(textbox.value);
+		let dublicate = this.playLibs.find((list) => list.name == textbox.value);
+		console.log(dublicate);
+		if (textbox.value === "") {
+			textbox.setCustomValidity("Entering a name is necessary!");
+		} else if (dublicate) {
+			textbox.setCustomValidity("This PlayList's name is already used");
+		} else {
+			textbox.setCustomValidity("");
+		}
+		return true;
+	},
 	start() {
 		this.handleAsync();
 		console.log(this.playLibs, this.renderingSongs, this.renderingList);
@@ -549,6 +777,7 @@ const app = {
 		this.loadConfig();
 		// Tạo thuộc tính cho App
 		this.defineProperties();
+		this.renderList();
 		this.handleEvents();
 		this.render(this.renderingList);
 		this.loadCurrentSong();
