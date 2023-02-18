@@ -15,7 +15,6 @@ const $$ = document.querySelectorAll.bind(document);
  */
 //NOTE TO DO: first:Làm nút option, delete playlist, edit playlist, upload music
 const USER_ID = 1;
-
 const heading = $("header h2");
 const nowPlayingList = $("header h4");
 const dashBoard = $(".dashboard");
@@ -46,6 +45,7 @@ const allPlayLibTab = $(".all-playLib");
 const removeBtn = $(".remove");
 const addPlayLibBtn = $(".playLib .header .btn-add");
 const modalPlayLib = $(".modal-playLib");
+const modalCRUD = $(".modal-crud");
 const songAPI = "http://localhost:3000/songs";
 const userAPI = "http://localhost:3000/users";
 const playLibAPI = "http://localhost:3000/playLib";
@@ -234,6 +234,9 @@ const app = {
 					<i class="fas fa-pause icon-pause"></i>
 				</div>
 				<div class="title">${list.name}</div>
+				<div class="btn btn-delete">
+					<i class="fa-solid fa-trash-can"></i>
+				</div>
 				<div class="btn btn-more">
 					<i class="fa-solid fa-ellipsis-vertical"></i>
 				</div>
@@ -463,10 +466,13 @@ const app = {
 				console.log(_this.currentIndex, _this.renderingList, _this.playingList);
 			}
 		});
-		// Xử lí khi click vào nút play trong Utility Bar
+		// Xử lí khi click vào nút trong Utility Bar
 		playList.addEventListener("click", function (e) {
 			let barIndex = parseInt(e.target.closest(".utilBar")?.dataset?.index);
 			let playBtn = e.target.closest(".utilBar .btn-play");
+			let editBtn = e.target.closest(".utilBar .btn-more");
+			let deleteBtn = e.target.closest(".btn-delete");
+			// Nút play
 			if (playBtn) {
 				console.log(barIndex);
 				if (_this.isPlaying && barIndex === _this.playingList) {
@@ -486,6 +492,24 @@ const app = {
 					);
 				}
 			}
+			// Nút edit
+			else if (editBtn) {
+				e.stopPropagation();
+				_this.showEditPlayLib(barIndex);
+				modalCRUD
+					.querySelector(".modal-container")
+					.addEventListener("click", function (e) {
+						e.stopPropagation();
+					});
+			} else if (deleteBtn) {
+				e.stopPropagation();
+				_this.showDeletePlayLib(barIndex);
+				modalCRUD
+					.querySelector(".modal-container")
+					.addEventListener("click", function (e) {
+						e.stopPropagation();
+					});
+			}
 		});
 		// Xử lí khi click vào 1 dòng lyrics
 		lyrics.addEventListener("click", function (e) {
@@ -502,12 +526,15 @@ const app = {
 					e.stopPropagation();
 				});
 		});
+		// Xử lí khi click vào modal CRUD;
+
 		// Xử lí khi click ra ngoài thì loại bỏ modal option
 		document.addEventListener("click", function () {
 			modalOption.style.display = "none";
 			modalOption.removeAttribute("data-index");
 			modalCredit.style.display = "none";
 			modalPlayLib.style.display = "none";
+			modalCRUD.style.display = "none";
 		});
 		// Xử lí khi bấm nút ở nav-bar
 		navBtn.forEach(function (btn, index) {
@@ -549,33 +576,11 @@ const app = {
 				.addEventListener("click", function (e) {
 					e.stopPropagation();
 				});
-			let text = modalPlayLib.querySelector('input[type="text"]');
-			let file = modalPlayLib.querySelector('input[type="file"]');
-			let form = modalPlayLib.querySelector("form");
-			text.addEventListener("change", function () {
-				_this.InvalidMsg(this);
-			});
-			text.addEventListener("invalid", function () {
-				_this.InvalidMsg(this);
-			});
 			// Xử lí validation form
-			form.addEventListener("submit", (e) => {
-				if (form.reportValidity()) {
-					form.button.disabled = true;
-					CRUD.uploadFile();
-					let data = {
-						userId: USER_ID,
-						name: text.value,
-						image: "./assets/image/" + file.files[0].name,
-						removeAble: true,
-						songs: [],
-					};
-					CRUD.addPlayList(data);
-					return true;
-				} else return false;
-			});
+			_this.validForm(modalPlayLib, "add");
 		});
 	},
+
 	// Xử lí bất đồng bộ (lyrics)
 	handleAsync() {
 		// Chỉ fetch những bài chưa có trong list
@@ -688,6 +693,7 @@ const app = {
 	showOption(node) {
 		modalOption.setAttribute("data-index", `${node.dataset.index}`);
 		modalOption.style.display = "block";
+
 		let nodePositionTop = Math.floor(node.getBoundingClientRect().top);
 		if (window.innerHeight / 2 + 22 > nodePositionTop) {
 			modalOption.style.left = node.offsetLeft + 10 + "px";
@@ -757,6 +763,36 @@ const app = {
 			this.isSongModify = true;
 		}
 	},
+	showDeletePlayLib(index) {
+		modalCRUD.style.display = "flex";
+		modalCRUD.innerHTML = `
+                <div class="modal-container">
+                    <h3>CONFIRM DELETE PLAYLIST </h3>
+                    <div class="delete delete-yes">YES</div>
+					<div class="delete delete-no">NO</div>
+                </div>
+            `;
+	},
+	showEditPlayLib(index) {
+		modalCRUD.style.display = "flex";
+		modalCRUD.innerHTML = `
+				<div class="modal-container">
+				<form >
+					<h3> EDIT PLAYLIST </h3>
+					<div style="display:flex; flex-wrap:wrap">
+						<label for="" style="min-width:90px">Name</label>
+						<input type="text" name="Name1" required="required">
+					</div>
+					<div style="display:flex; flex-wrap:wrap">
+						<label for="file">Image</label>
+						<input id="fileupload" name="fileupload" type="file" accept="image/*" required="required">
+						
+					</div>
+					<input class='fix submit' name="button" type="submit" >
+				</form>		
+				</div>
+            `;
+	},
 	InvalidMsg(textbox) {
 		console.log(textbox.value);
 		let dublicate = this.playLibs.find((list) => list.name == textbox.value);
@@ -769,6 +805,44 @@ const app = {
 			textbox.setCustomValidity("");
 		}
 		return true;
+	},
+	validForm(node, method) {
+		let text = node.querySelector('input[type="text"]');
+		let file = node.querySelector('input[type="file"]');
+		let form = node.querySelector("form");
+		text.addEventListener("change", function () {
+			app.InvalidMsg(this);
+		});
+		text.addEventListener("invalid", function () {
+			app.InvalidMsg(this);
+		});
+		form.addEventListener("submit", (e) => {
+			if (form.reportValidity()) {
+				form.button.disabled = true;
+				if (method == "add") {
+					CRUD.uploadFile();
+					let data = {
+						userId: USER_ID,
+						name: text.value,
+						image: "./assets/image/" + file.files[0].name,
+						removeAble: true,
+						songs: [],
+					};
+					CRUD.addPlayList(data);
+				} else if (method == "edit") {
+					// CRUD.uploadFile();
+					// let data = {
+					// 	userId: USER_ID,
+					// 	name: text.value,
+					// 	image: "./assets/image/" + file.files[0].name,
+					// 	removeAble: true,
+					// 	songs: [],
+					// };
+					// CRUD.addPlayList(data);
+				}
+				return true;
+			} else return false;
+		});
 	},
 	start() {
 		this.handleAsync();
