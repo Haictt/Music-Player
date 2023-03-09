@@ -46,9 +46,9 @@ const removeBtn = $(".remove");
 const addPlayLibBtn = $(".playLib .header .btn-add");
 const modalPlayLib = $(".modal-playLib");
 const modalCRUD = $(".modal-crud");
-const songAPI = "https://hai-music-json-server.herokuapp.com/songs";
-const userAPI = "https://hai-music-json-server.herokuapp.com/users";
-const playLibAPI = "https://hai-music-json-server.herokuapp.com/playLib";
+const songAPI = "http://localhost:3000/songs";
+const userAPI = "http://localhost:3000/users";
+const playLibAPI = "http://localhost:3000/playLib";
 var playedSong = [];
 //Get DATA
 const data = {
